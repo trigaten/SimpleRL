@@ -1,14 +1,15 @@
 from abc import ABC, abstractmethod
+from collections import namedtuple
 
 """A `Policy` takes in an observation and returns an action or array of log probs for actions."""
-def Policy(ABC):
+class Policy(ABC):
     
     @abstractmethod
     def __call__(x):
         raise Exception("Not Implemented")
 
 """An `Agent` is an object which 0 or more policies and is responsible for training them."""
-def Agent(ABC):
+class Agent(ABC):
     
     @abstractmethod
     def __call__(x):
@@ -31,3 +32,4 @@ def Agent(ABC):
 
 
 
+Experience = namedtuple("Experience", "s a r s_")

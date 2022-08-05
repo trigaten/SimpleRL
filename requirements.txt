@@ -1,3 +1,7 @@
 sphinx
 pytest --install-option='--U'
 numpy
+gym
+torch 
+torchvision 
+torchaudio

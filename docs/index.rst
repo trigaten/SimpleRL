@@ -10,6 +10,7 @@ Welcome to SimpleRL's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   buffers.rst
 
 
 Indices and tables
