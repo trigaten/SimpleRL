@@ -1,9 +1,23 @@
 import gym
+import torch
+import torch.nn as nn
+import numpy as np
 
 from simplerl.core import Experience
 from simplerl.policies import DiscreteRandomPolicy
 from simplerl.buffers import BasicExperienceBuffer
 from simplerl.dqn import DQN
+
+from simplerl import unzip_experience_buffer, MaxQPolicy
+
+class LinearNet(nn.Module):
+    """Dummy network"""
+    def __init__(self):
+        super().__init__()
+        self.fc = nn.Linear(1, 2, bias=False)
+
+    def forward(self, x):
+        return self.fc(x)
 
 class TestPolicies:
     def test_random_policy(self):
@@ -59,4 +73,21 @@ class TestDQN:
 
         buffer = [Experience(0, 1, 1, 0), Experience(0, 0, 0, 0), Experience(0, 1, 1, 0)]
     
+    def test_next_state_maxq_values(self):
+        net = LinearNet()
+        weights  = net.state_dict()
+        weights['fc.weight'] = torch.FloatTensor([[2.0],[-1.0]])
+        net.load_state_dict(weights)
+        policy = MaxQPolicy(net, num_actions=2)
+        # instantiate a DQN agent
+        buffer = BasicExperienceBuffer(size=10, batch_size=2)
+        dqn = DQN(buffer=buffer, gamma=0.9, epsilon=0.1, policy=policy)
+        
+        buffer.add(np.array([1.0]), 2, 3, np.array([4.0]))
+        buffer.add(np.array([1.0]), 2, 3, np.array([-2.0]))
+        buffer.add(np.array([1.0]), 2, 3, np.array([1.0]))
 
+        states, actions, rewards, next_states = unzip_experience_buffer(buffer)
+        assert torch.equal(dqn.next_state_maxq_values(next_states), torch.Tensor([8.0, 2.0, 2.0]))
+
+        

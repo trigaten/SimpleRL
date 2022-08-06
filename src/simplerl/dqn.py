@@ -1,9 +1,16 @@
 from copy import deepcopy
+from typing import List
+import random
+
+import torch
+import numpy as np
+
 from simplerl.core import Agent, Policy
 from simplerl.buffers import BasicExperienceBuffer
 from simplerl.policies import DiscreteRandomPolicy
-from simplerl.utils import discount_rewards
-import random
+from simplerl.utils import discount_rewards, unzip_experience_buffer
+
+
 
 class DQN(Agent):
     def __init__(self, buffer:BasicExperienceBuffer, gamma:float, epsilon:float, policy:Policy):
@@ -23,8 +30,18 @@ class DQN(Agent):
         return self.policy(obs)
 
     def update(self):
-        # discounted_rewards = discount_rewards()
+        # sample a batch of experiences
+        sample_experience = self.experience_buffer.sample()
+        states, actions, rewards, next_states = unzip_experience_buffer(sample_experience)
+
         pass
+
+    def next_state_maxq_values(self, next_states:List[np.array]):
+        with torch.no_grad():
+            s_ = torch.from_numpy(np.stack(next_states)).float()
+            q_values = self.target_policy.calc_q_values(s_)
+            max_q_values = q_values.max(dim=1)
+            return max_q_values.values
 
 
 # def dqn_train(env, agent):

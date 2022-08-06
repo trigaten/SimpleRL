@@ -21,7 +21,7 @@ class MaxQPolicy(Policy):
         self.net = net
         self.num_actions = num_actions
 
-    def calc_q_values(self, obs):
+    def calc_q_values(self, obs:torch.FloatTensor):
         return self.net(obs)
 
     def __call__(self, obs):
