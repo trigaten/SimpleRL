@@ -2,4 +2,3 @@ sphinx
 pytest --install-option='--U'
 numpy
 gym
-torch --install-option='--extra-index-url https://download.pytorch.org/whl/cpu'
