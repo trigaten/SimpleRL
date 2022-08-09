@@ -2,6 +2,7 @@ import gym
 import torch
 import torch.nn as nn
 import numpy as np
+from pytest import approx
 
 from simplerl.core import Experience
 from simplerl.policies import DiscreteRandomPolicy
@@ -85,7 +86,74 @@ class TestDQN:
         
         buffer.add(np.array([1.0]), 2, 3, np.array([4.0]), False)
         buffer.add(np.array([1.0]), 2, 3, np.array([-2.0]), False)
-        buffer.add(np.array([1.0]), 2, 3, np.array([1.0]), False)
+        buffer.add(np.array([1.0]), 2, 3, np.array([1.0]), True)
 
         states, actions, rewards, next_states, dones = unzip_experience_buffer(buffer)
-        assert torch.equal(dqn.next_state_maxq_values(next_states), torch.Tensor([8.0, 2.0, 2.0]))
+        assert torch.equal(dqn.next_state_maxq_values(next_states, dones), torch.Tensor([8.0, 2.0, 0.0]))
+
+    def test_compute_target_values(self):
+        net = LinearNet()
+        weights  = net.state_dict()
+        weights['fc.weight'] = torch.FloatTensor([[2.0],[-1.0]])
+        net.load_state_dict(weights)
+        policy = MaxQPolicy(net, num_actions=2)
+        # instantiate a DQN agent
+        buffer = BasicExperienceBuffer(size=10, batch_size=2)
+        dqn = DQN(buffer=buffer, gamma=0.9, epsilon=0.1, policy=policy)
+        
+        buffer.add(np.array([1.0]), 2, 3, np.array([4.0]), False)
+        buffer.add(np.array([4.0]), 2, 3, np.array([-2.0]), False)
+        buffer.add(np.array([-2.0]), 2, 3, np.array([1.0]), True)
+
+        states, actions, rewards, next_states, dones = unzip_experience_buffer(buffer)
+
+        target_values = dqn.compute_target_values(rewards, next_states, dones)
+
+        assert torch.equal(target_values, torch.Tensor([3.0 + dqn.gamma * 8.0, (3.0 + dqn.gamma * 2.0), 3.0]))
+        
+    def test_compute_q_values(self):
+        net = LinearNet()
+        weights  = net.state_dict()
+        weights['fc.weight'] = torch.FloatTensor([[2.0],[-1.0]])
+        net.load_state_dict(weights)
+        policy = MaxQPolicy(net, num_actions=2)
+        # instantiate a DQN agent
+        buffer = BasicExperienceBuffer(size=10, batch_size=2)
+        dqn = DQN(buffer=buffer, gamma=0.9, epsilon=0.1, policy=policy)
+        
+        buffer.add(np.array([1.0]), 0, 3, np.array([4.0]), False)
+        buffer.add(np.array([4.0]), 1, 3, np.array([-2.0]), False)
+        buffer.add(np.array([-2.0]), 0, 3, np.array([1.0]), True)
+
+        states, actions, rewards, next_states, dones = unzip_experience_buffer(buffer)
+
+        target_values = dqn.compute_q_values(states, actions)
+
+        assert torch.equal(target_values, torch.FloatTensor([2.0, -4.0, -4.0]))
+
+    def test_calc_loss(self):
+        net = LinearNet()
+        weights  = net.state_dict()
+        weights['fc.weight'] = torch.FloatTensor([[2.0],[-1.0]])
+        net.load_state_dict(weights)
+        policy = MaxQPolicy(net, num_actions=2)
+        # instantiate a DQN agent
+        buffer = BasicExperienceBuffer(size=10, batch_size=3)
+        dqn = DQN(buffer=buffer, gamma=0.9, epsilon=0.1, policy=policy)
+        
+        buffer.add(np.array([1.0]), 0, 3, np.array([4.0]), False)
+        buffer.add(np.array([4.0]), 1, 3, np.array([-2.0]), False)
+        buffer.add(np.array([-2.0]), 0, 3, np.array([1.0]), True)
+
+        sample = buffer.sample()
+
+        loss = dqn.calc_loss(sample)
+
+        q_values = [2, -4, -4]
+
+        targets = [3 + dqn.gamma * 8.0, 3 + dqn.gamma * 2.0, 3]
+
+        true_losses = [(q_values[0] - targets[0])**2, (q_values[1] - targets[1])**2, (q_values[2] - targets[2])**2]
+        true_loss = sum(true_losses)/3
+
+        assert loss.item() == approx(true_loss)
