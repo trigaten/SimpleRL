@@ -18,7 +18,9 @@ jobs:
         python-version: '3.8'
 
     - name: "Build and remove the magent import"
-      run: pip install -e .
+      run: |
+        pip install -r requirements.txt
+        pip install -e .
 
     - name: "Run tests"
       run: |
