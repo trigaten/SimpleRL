@@ -1,15 +1,4 @@
-from inspect import isabstract
-
-from numpy import size
-import gym
-import torch.nn as nn
-
-from simplerl.core import Agent, Policy
 from simplerl.buffers import BasicExperienceBuffer
-from simplerl.policies import DiscreteRandomPolicy
-from simplerl.core import Experience
-
-from simplerl.dqn import DQN
 
 class TestBuffer:
     def test_add(self):

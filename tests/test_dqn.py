@@ -34,7 +34,7 @@ class TestDQN:
     def test_basic(self):
         """test basic properties of DQN"""
         # instantiate a DQN agent
-        dqn = DQN(buffer=BasicExperienceBuffer(size=10, batch_size=2), gamma=0.9, epsilon=0.1, policy=DiscreteRandomPolicy(num_actions=2))
+        dqn = DQN(buffer=BasicExperienceBuffer(size=10, batch_size=2), gamma=0.9, epsilon=0.1, policy=DiscreteRandomPolicy(num_actions=2), start_learning_step=1000, target_update_freq=1000, update_freq=1000, optimizer=None)
         # instantiate a gym environment
         env = gym.make('CartPole-v1', new_step_api=True)
         obs = env.reset() 
@@ -61,7 +61,11 @@ class TestDQN:
             def __call__(self, obs):
                 return 7
 
-        dqn = DQN(buffer=BasicExperienceBuffer(size=10, batch_size=2), gamma=0.9, epsilon=0.1, policy=Policy7())
+        dqn = DQN(buffer=BasicExperienceBuffer(size=10, batch_size=2), 
+        gamma=0.9, epsilon=0.1, 
+        policy=Policy7(), optimizer=None,
+        start_learning_step=1000, target_update_freq=1000, update_freq=1000)
+        
         total_7s = 0
         # test epsilon randomness is working
         for i in range(1000):
@@ -82,7 +86,10 @@ class TestDQN:
         policy = MaxQPolicy(net, num_actions=2)
         # instantiate a DQN agent
         buffer = BasicExperienceBuffer(size=10, batch_size=2)
-        dqn = DQN(buffer=buffer, gamma=0.9, epsilon=0.1, policy=policy)
+        dqn = DQN(buffer=BasicExperienceBuffer(size=10, batch_size=2), 
+        gamma=0.9, epsilon=0.1, 
+        policy=policy, optimizer=torch.optim.Adam(net.parameters(), lr=0.1),
+        start_learning_step=1000, target_update_freq=1000, update_freq=1000)
         
         buffer.add(np.array([1.0]), 2, 3, np.array([4.0]), False)
         buffer.add(np.array([1.0]), 2, 3, np.array([-2.0]), False)
@@ -99,7 +106,10 @@ class TestDQN:
         policy = MaxQPolicy(net, num_actions=2)
         # instantiate a DQN agent
         buffer = BasicExperienceBuffer(size=10, batch_size=2)
-        dqn = DQN(buffer=buffer, gamma=0.9, epsilon=0.1, policy=policy)
+        dqn = DQN(buffer=BasicExperienceBuffer(size=10, batch_size=2), 
+        gamma=0.9, epsilon=0.1, 
+        policy=policy, optimizer=torch.optim.Adam(net.parameters(), lr=0.1),
+        start_learning_step=1000, target_update_freq=1000, update_freq=1000)
         
         buffer.add(np.array([1.0]), 2, 3, np.array([4.0]), False)
         buffer.add(np.array([4.0]), 2, 3, np.array([-2.0]), False)
@@ -119,7 +129,10 @@ class TestDQN:
         policy = MaxQPolicy(net, num_actions=2)
         # instantiate a DQN agent
         buffer = BasicExperienceBuffer(size=10, batch_size=2)
-        dqn = DQN(buffer=buffer, gamma=0.9, epsilon=0.1, policy=policy)
+        dqn = DQN(buffer=BasicExperienceBuffer(size=10, batch_size=2), 
+        gamma=0.9, epsilon=0.1, 
+        policy=policy, optimizer=torch.optim.Adam(net.parameters(), lr=0.1),
+        start_learning_step=1000, target_update_freq=1000, update_freq=1000)
         
         buffer.add(np.array([1.0]), 0, 3, np.array([4.0]), False)
         buffer.add(np.array([4.0]), 1, 3, np.array([-2.0]), False)
@@ -139,7 +152,10 @@ class TestDQN:
         policy = MaxQPolicy(net, num_actions=2)
         # instantiate a DQN agent
         buffer = BasicExperienceBuffer(size=10, batch_size=3)
-        dqn = DQN(buffer=buffer, gamma=0.9, epsilon=0.1, policy=policy)
+        dqn = DQN(buffer=BasicExperienceBuffer(size=10, batch_size=2), 
+        gamma=0.9, epsilon=0.1, 
+        policy=policy, optimizer=torch.optim.Adam(net.parameters(), lr=0.1),
+        start_learning_step=1000, target_update_freq=1000, update_freq=1000)
         
         buffer.add(np.array([1.0]), 0, 3, np.array([4.0]), False)
         buffer.add(np.array([4.0]), 1, 3, np.array([-2.0]), False)

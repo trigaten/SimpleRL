@@ -21,11 +21,15 @@ class DQN(Agent):
     :param epsilon: the epsilon value for the epsilon-greedy policy
     :param policy: the policy to use for the agent
     :param start_learning: the number of steps before the agent starts learning
-    :param train_freq: the number of steps between each training step
+    :param update_freq: the number of steps between each update step
+    :param target_update_freq: the number of steps between each target network update
     """
-    def __init__(self, buffer:BasicExperienceBuffer, gamma:float, epsilon:float, 
-    policy:Policy, optimizer, start_learning:int, train_freq:int):
-        """"""
+    def __init__(self, 
+        buffer:BasicExperienceBuffer, 
+        gamma:float, epsilon:float, 
+        policy:Policy, optimizer:optim.Optimizer, 
+        start_learning_step:int, update_freq:int, target_update_freq:int):
+
         self.experience_buffer = buffer
         self.gamma = gamma
         self.epsilon = epsilon
@@ -35,6 +39,9 @@ class DQN(Agent):
         self.random_policy = DiscreteRandomPolicy(num_actions=self.num_actions)
         self.loss = nn.MSELoss()
         self.optimizer = optimizer
+        self.start_learning_step = start_learning_step
+        self.update_freq = update_freq
+        self.target_update_freq = target_update_freq
 
     def __call__(self, obs):
         if random.random() < self.epsilon:
