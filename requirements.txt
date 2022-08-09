@@ -2,7 +2,6 @@ sphinx
 pytest --install-option='--U'
 numpy
 gym
-torch>=1.7.0
-torchvision>=0.8.1
+torch torchvision torchaudio --install-option='--extra-index-url https://download.pytorch.org/whl/cpu'
 torchvision 
 torchaudio
