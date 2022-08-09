@@ -2,6 +2,7 @@ sphinx
 pytest --install-option='--U'
 numpy
 gym
-torch 
+torch --install-option="--extra-index-url https://download.pytorch.org/whl/cpu"; sys_platform == 'linux'
+torch; sys_platform != 'linux'
 torchvision 
 torchaudio
