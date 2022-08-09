@@ -12,8 +12,8 @@ class BasicExperienceBuffer():
         self.batch_size = batch_size
         self.buffer = []
 
-    def add(self, s, a, r, s_):
-        self.buffer.append(Experience(s, a, r, s_))
+    def add(self, s, a, r, s_, done):
+        self.buffer.append(Experience(s, a, r, s_, done))
         if len(self.buffer) > self.size:
             self.buffer.pop(0)
 

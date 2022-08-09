@@ -30,12 +30,13 @@ def compare_lists_of_np_arrays(l1, l2):
 def unzip_experience_buffer(buffer):
     """Unzip experience buffer into separate lists of observations, actions, 
     rewards, and next observations."""
-    obs, actions, rewards, next_obs = [], [], [], []
-    for s, a, r, s_ in buffer:
+    obs, actions, rewards, next_obs, dones = [], [], [], [], []
+    for s, a, r, s_, done in buffer:
         obs.append(s)
         actions.append(a)
         rewards.append(r)
         next_obs.append(s_)
+        dones.append(done)
         
-    return obs, actions, rewards, next_obs
+    return obs, actions, rewards, next_obs, dones
 

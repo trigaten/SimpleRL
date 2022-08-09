@@ -32,4 +32,4 @@ class Agent(ABC):
 
 
 
-Experience = namedtuple("Experience", "s a r s_")
+Experience = namedtuple("Experience", "s a r s_ done")

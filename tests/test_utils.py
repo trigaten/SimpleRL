@@ -1,3 +1,4 @@
+from re import T
 import numpy as np
 
 from simplerl import discount_rewards, compare_lists_of_np_arrays, unzip_experience_buffer, BasicExperienceBuffer
@@ -17,11 +18,11 @@ class TestUtils:
 
     def test_unzip_experience_buffer(self):
         buffer = BasicExperienceBuffer(size=10, batch_size=2)
-        buffer.add(np.array([1, 8]), 2, 3, np.array([4, 8]))
-        buffer.add(np.array([5, 8]), 6, 7, np.array([8, 8]))
-        buffer.add(np.array([9, 8]), 10, 11, np.array([12, 8]))
+        buffer.add(np.array([1, 8]), 2, 3, np.array([4, 8]), True)
+        buffer.add(np.array([5, 8]), 6, 7, np.array([8, 8]), True)
+        buffer.add(np.array([9, 8]), 10, 11, np.array([12, 8]), True)
 
-        states, actions, rewards, next_states = unzip_experience_buffer(buffer)
+        states, actions, rewards, next_states, dones = unzip_experience_buffer(buffer)
         assert compare_lists_of_np_arrays(states, [np.array([1, 8]), np.array([5, 8]), np.array([9, 8])])
         assert compare_lists_of_np_arrays(actions, [2, 6, 10])
         assert compare_lists_of_np_arrays(rewards, [3, 7, 11])

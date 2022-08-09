@@ -47,7 +47,7 @@ class TestDQN:
             # step the environment
             next_obs, reward, terminated, truncated, info = env.step(action)
             # add the experience to the buffer
-            dqn.experience_buffer.add(obs, action, reward, next_obs)
+            dqn.experience_buffer.add(obs, action, reward, next_obs, terminated)
             # update the new obs
             obs = next_obs
 
@@ -71,7 +71,7 @@ class TestDQN:
         # should be a bit above 900 7s
         assert total_7s > 860 and total_7s < 960
 
-        buffer = [Experience(0, 1, 1, 0), Experience(0, 0, 0, 0), Experience(0, 1, 1, 0)]
+        buffer = [Experience(0, 1, 1, 0, False), Experience(0, 0, 0, 0, False), Experience(0, 1, 1, 0, True)]
     
     def test_next_state_maxq_values(self):
         net = LinearNet()
@@ -83,11 +83,9 @@ class TestDQN:
         buffer = BasicExperienceBuffer(size=10, batch_size=2)
         dqn = DQN(buffer=buffer, gamma=0.9, epsilon=0.1, policy=policy)
         
-        buffer.add(np.array([1.0]), 2, 3, np.array([4.0]))
-        buffer.add(np.array([1.0]), 2, 3, np.array([-2.0]))
-        buffer.add(np.array([1.0]), 2, 3, np.array([1.0]))
+        buffer.add(np.array([1.0]), 2, 3, np.array([4.0]), False)
+        buffer.add(np.array([1.0]), 2, 3, np.array([-2.0]), False)
+        buffer.add(np.array([1.0]), 2, 3, np.array([1.0]), False)
 
-        states, actions, rewards, next_states = unzip_experience_buffer(buffer)
+        states, actions, rewards, next_states, dones = unzip_experience_buffer(buffer)
         assert torch.equal(dqn.next_state_maxq_values(next_states), torch.Tensor([8.0, 2.0, 2.0]))
-
-        

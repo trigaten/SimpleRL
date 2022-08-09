@@ -34,14 +34,17 @@ class DQN(Agent):
         sample_experience = self.experience_buffer.sample()
         states, actions, rewards, next_states = unzip_experience_buffer(sample_experience)
 
+        next_state_q_values = self.next_state_maxq_values(next_states)
+        disc_next_state_q_values = self.gamma * next_state_q_values
         pass
 
     def next_state_maxq_values(self, next_states:List[np.array]):
+        """Compute the q values of the next states"""
         with torch.no_grad():
             s_ = torch.from_numpy(np.stack(next_states)).float()
             q_values = self.target_policy.calc_q_values(s_)
-            max_q_values = q_values.max(dim=1)
-            return max_q_values.values
+            selected_q_values = q_values.max(dim=1)
+            return selected_q_values.values
 
 
 # def dqn_train(env, agent):
