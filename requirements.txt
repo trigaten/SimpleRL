@@ -1,5 +1,5 @@
 sphinx
 pytest --install-option='--U'
-numpy
+numpy>=1.18.0
 gym
 torch --install-option='--extra-index-url https://download.pytorch.org/whl/cpu'
