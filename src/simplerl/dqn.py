@@ -53,12 +53,16 @@ class DQN(Agent):
         # sample a batch of experiences
         sample_experience = self.experience_buffer.sample()
         
+        # compute loss
         loss = self.calc_loss(sample_experience)
 
+        # backpropogate gradients
         loss.backward()
 
+        # perform an optimization step
         self.optimizer.step()
 
+        # clear gradients
         self.optimizer.zero_grad()
         
         return loss.item()
@@ -100,7 +104,8 @@ class DQN(Agent):
 
         return q_values.gather(1, actions.unsqueeze(-1)).squeeze()
 
-
+    # def step_hook(self):
+        
 
         
 
