@@ -1,2 +1,3 @@
 # SimpleRL
-My RL algo implementations
+
+Simple RL implementations, for practice.
