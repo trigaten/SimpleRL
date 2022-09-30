@@ -1,4 +1,4 @@
 sphinx
 pytest --install-option='--U'
 numpy>=1.18.0
-gym
+gym==0.25.0
