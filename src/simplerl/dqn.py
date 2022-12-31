@@ -12,8 +12,6 @@ from simplerl.buffers import BasicExperienceBuffer
 from simplerl.policies import DiscreteRandomPolicy
 from simplerl.utils import discount_rewards, unzip_experience_buffer
 
-
-
 class DQN(Agent):
     """
     :param buffer: the experience buffer to add to/sample from
@@ -34,6 +32,7 @@ class DQN(Agent):
         self.gamma = gamma
         self.epsilon = epsilon
         self.policy = policy
+        # TODO: make this perform a load, not deepcopy...
         self.target_policy = deepcopy(policy)
         self.num_actions = policy.num_actions
         self.random_policy = DiscreteRandomPolicy(num_actions=self.num_actions)
@@ -44,6 +43,11 @@ class DQN(Agent):
         self.target_update_freq = target_update_freq
 
     def __call__(self, obs):
+        # TODO: refactor
+        # to device
+        obs = torch.FloatTensor(obs)
+        obs = torch.unsqueeze(obs, -1)
+        obs = torch.transpose(obs, 0, 1)
         if random.random() < self.epsilon:
             return self.random_policy(obs)
         
@@ -104,10 +108,9 @@ class DQN(Agent):
 
         return q_values.gather(1, actions.unsqueeze(-1)).squeeze()
 
-    # def step_hook(self):
-        
+    def step_hook(self):
+        pass
 
-        
 
 
 # def dqn_train(env, agent):

@@ -27,4 +27,4 @@ class MaxQPolicy(Policy):
     def __call__(self, obs):
         with torch.no_grad():
             q_values = self.calc_q_values(obs)
-            return q_values.argmax(1)
+            return q_values.argmax(1).item()

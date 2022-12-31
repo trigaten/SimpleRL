@@ -9,13 +9,15 @@ from simplerl.policies import DiscreteRandomPolicy
 from simplerl.buffers import BasicExperienceBuffer
 from simplerl.dqn import DQN
 
+from simplerl.core import train
+
 from simplerl import unzip_experience_buffer, MaxQPolicy
 
 class LinearNet(nn.Module):
     """Dummy network"""
-    def __init__(self):
+    def __init__(self, inputs=1, outputs = 2):
         super().__init__()
-        self.fc = nn.Linear(1, 2, bias=False)
+        self.fc = nn.Linear(inputs, outputs, bias=False)
 
     def forward(self, x):
         return self.fc(x)
@@ -69,7 +71,7 @@ class TestDQN:
         total_7s = 0
         # test epsilon randomness is working
         for i in range(1000):
-            action = dqn(-1)
+            action = dqn(torch.FloatTensor([-1]))
             if action == 7:
                 total_7s+=1
 
@@ -173,3 +175,17 @@ class TestDQN:
         true_loss = sum(true_losses)/3
 
         assert loss.item() == approx(true_loss)
+
+    def test_train(self):
+        net = LinearNet(4, 2)
+        policy = MaxQPolicy(net, num_actions=2)
+        # instantiate a DQN agent
+        dqn = DQN(buffer=BasicExperienceBuffer(size=10, batch_size=2), 
+        gamma=0.9, epsilon=0.1, 
+        policy=policy, optimizer=torch.optim.Adam(net.parameters(), lr=0.1),
+        start_learning_step=1000, target_update_freq=1000, update_freq=1000)
+
+        env = gym.make('CartPole-v1')
+
+        train(dqn, env, 100)
+

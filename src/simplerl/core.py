@@ -26,7 +26,8 @@ def train(agent, env, episodes):
         obs = env.reset()
         done = False
         while not done:
-            next_obs, reward, done, info = agent(obs)
+            action = agent(obs)
+            next_obs, reward, done, info = env.step(action)
             
 
         episodes_complete+= 1

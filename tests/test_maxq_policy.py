@@ -30,7 +30,7 @@ class TestMaxQPolicy:
         policy = MaxQPolicy(net, 2)
 
         # check that policy output is correct
-        assert policy(torch.FloatTensor([[1.0]])).item() == 0
-        assert policy(torch.FloatTensor([[-1.0]])).item() == 1
+        assert policy(torch.FloatTensor([[1.0]])) == 0
+        assert policy(torch.FloatTensor([[-1.0]])) == 1
 
 
