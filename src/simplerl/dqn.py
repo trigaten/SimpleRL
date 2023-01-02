@@ -72,13 +72,23 @@ class DQN(Agent):
         return loss.item()
     
     def calc_loss(self, sample_experience):
+        """Compute the differentiable Q learning loss from a batch of experiences.
+        
+        :param sample_experience: a batch of experiences
+        
+        """
+        # unpack the batch of experiences
         states, actions, rewards, next_states, dones = unzip_experience_buffer(sample_experience)
+        
+        # compute the target q values for the loss equation (non-differentiable)
         # TODO: remove other no grad usage
         with torch.no_grad():
             target_values = self.compute_target_values(rewards, next_states, dones)
 
+        # compute the newly estimated q values (differentiable)
         q_values = self.compute_q_values(states, actions)
 
+        # compute the loss
         loss = self.loss(q_values, target_values)
 
         return loss
@@ -91,7 +101,7 @@ class DQN(Agent):
         return target_values
 
     def next_state_maxq_values(self, next_states:List[np.array], dones:List[bool]):
-        """Compute the q values of the next states"""
+        """Compute the q values of the next states using the target policy."""
         with torch.no_grad():
             s_ = torch.from_numpy(np.stack(next_states)).float()
             q_values = self.target_policy.calc_q_values(s_)
@@ -101,29 +111,15 @@ class DQN(Agent):
 
     # TODO: rename?
     def compute_q_values(self, states:List[np.array], actions:List[bool]):
+        """Compute the q values of the state action pairs"""
         s = torch.from_numpy(np.stack(states)).float()
-        q_values = self.target_policy.calc_q_values(s)
+        q_values = self.policy.calc_q_values(s)
 
         actions = torch.LongTensor(actions)
 
         return q_values.gather(1, actions.unsqueeze(-1)).squeeze()
 
-    def step_hook(self):
-        pass
-
-
-
-# def dqn_train(env, agent):
-#     # "global" state of training
-#     training_done = False
-#     # how many episodes have been completed thus far
-#     episodes_complete = 0
-#     while not training_done:
-#         obs = env.reset()
-#         done = False
-#         while not done:
-#             obs, reward, done, info = agent(obs)
-
-#         episodes_complete+= 1
-#         if episodes_complete > 1000:
-#             training_done = True
+    def post_stage(self, stage, episodes) -> None:
+        if stage == "POST_EPISODE_STAGE":
+            if episodes % self.update_freq == 0:
+                self.update()
