@@ -3,3 +3,7 @@ pytest --install-option='--U'
 numpy
 gym==0.25.0
 pygame
+swig
+box2d
+box2d-kengz
+tensorboard
