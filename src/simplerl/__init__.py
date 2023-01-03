@@ -3,3 +3,4 @@ from simplerl.buffers import *
 from simplerl.core import *
 from simplerl.dqn import *
 from simplerl.utils import *
+from simplerl.hooks import *
