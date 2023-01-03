@@ -2,3 +2,4 @@ sphinx
 pytest --install-option='--U'
 numpy
 gym==0.25.0
+pygame
