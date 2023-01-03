@@ -121,5 +121,11 @@ class DQN(Agent):
 
     def post_stage(self, stage, episodes) -> None:
         if stage == "POST_EPISODE_STAGE":
-            if episodes % self.update_freq == 0:
-                self.update()
+            if episodes >= self.start_learning_step:
+                if episodes % self.update_freq == 0:
+                    self.update()
+                if episodes % self.target_update_freq == 0:
+                    self.target_policy.net.load_state_dict(self.policy.net.state_dict())
+
+    def post_experience(self, state, action, reward, next_state, done):
+        self.experience_buffer.add(state, action, reward, next_state, done)

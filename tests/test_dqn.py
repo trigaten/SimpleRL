@@ -205,16 +205,16 @@ class TestDQN:
         assert dqn.policy.net.state_dict()['fc.weight'][0] > 2
 
 
-    # def test_train(self):
-    #     net = LinearNet(4, 2)
-    #     policy = MaxQPolicy(net, num_actions=2)
-    #     # instantiate a DQN agent
-    #     dqn = DQN(buffer=BasicExperienceBuffer(size=10, batch_size=2), 
-    #     gamma=0.9, epsilon=0.1, 
-    #     policy=policy, optimizer=torch.optim.Adam(net.parameters(), lr=0.1),
-    #     start_learning_step=1000, target_update_freq=1000, update_freq=1000)
+    def test_train(self):
+        net = LinearNet(4, 2)
+        policy = MaxQPolicy(net, num_actions=2)
+        # instantiate a DQN agent
+        dqn = DQN(buffer=BasicExperienceBuffer(size=200, batch_size=20), 
+        gamma=0.9, epsilon=0.1, 
+        policy=policy, optimizer=torch.optim.Adam(net.parameters(), lr=0.1),
+        start_learning_step=20, target_update_freq=4, update_freq=20)
 
-    #     env = gym.make('CartPole-v1')
+        env = gym.make('CartPole-v1')
 
-    #     train(dqn, env, 100)
+        train(dqn, env, 100)
 

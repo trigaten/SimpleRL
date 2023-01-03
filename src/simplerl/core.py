@@ -28,7 +28,7 @@ def train(agent, env, episodes):
         while not done:
             action = agent(obs)
             next_obs, reward, done, info = env.step(action)
-            
+            agent.post_experience(obs, action, reward, next_obs, done)
 
         episodes_complete+= 1
         agent.post_stage("POST_EPISODE_STAGE", episodes_complete)
