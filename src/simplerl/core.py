@@ -31,6 +31,8 @@ def train(agent, env, episodes):
             
 
         episodes_complete+= 1
+        agent.post_stage("POST_EPISODE_STAGE", episodes_complete)
+        
         if episodes_complete > episodes:
             training_done = True
 

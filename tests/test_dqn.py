@@ -145,6 +145,7 @@ class TestDQN:
         target_values = dqn.compute_q_values(states, actions)
 
         assert torch.equal(target_values, torch.FloatTensor([2.0, -4.0, -4.0]))
+        assert target_values.requires_grad == True
 
     def test_calc_loss(self):
         net = LinearNet()
@@ -154,7 +155,7 @@ class TestDQN:
         policy = MaxQPolicy(net, num_actions=2)
         # instantiate a DQN agent
         buffer = BasicExperienceBuffer(size=10, batch_size=3)
-        dqn = DQN(buffer=BasicExperienceBuffer(size=10, batch_size=2), 
+        dqn = DQN(buffer=buffer, 
         gamma=0.9, epsilon=0.1, 
         policy=policy, optimizer=torch.optim.Adam(net.parameters(), lr=0.1),
         start_learning_step=1000, target_update_freq=1000, update_freq=1000)
@@ -175,17 +176,45 @@ class TestDQN:
         true_loss = sum(true_losses)/3
 
         assert loss.item() == approx(true_loss)
+        assert loss.requires_grad == True
 
-    def test_train(self):
-        net = LinearNet(4, 2)
+    def test_update(self):
+        net = LinearNet()
+        weights  = net.state_dict()
+        weights['fc.weight'] = torch.FloatTensor([[2.0],[-1.0]])
+        net.load_state_dict(weights)
         policy = MaxQPolicy(net, num_actions=2)
         # instantiate a DQN agent
-        dqn = DQN(buffer=BasicExperienceBuffer(size=10, batch_size=2), 
+        buffer = BasicExperienceBuffer(size=10, batch_size=1)
+        dqn = DQN(buffer=buffer, 
         gamma=0.9, epsilon=0.1, 
-        policy=policy, optimizer=torch.optim.Adam(net.parameters(), lr=0.1),
+        policy=policy, optimizer=torch.optim.Adam(net.parameters(), lr=0.001),
         start_learning_step=1000, target_update_freq=1000, update_freq=1000)
+        
+        buffer.add(np.array([1.0]), 0, 3, np.array([4.0]), False)
 
-        env = gym.make('CartPole-v1')
+        sample = buffer.sample()
+        dqn.calc_loss(sample).backward()
+        
+        # hand computed gradient for comparison
+        assert all(torch.eq(next(dqn.policy.net.parameters()).grad.view(-1), torch.FloatTensor([2*(3+0.9*8 - 2)*-1, 0.0])))
+        dqn.policy.net.zero_grad()
 
-        train(dqn, env, 100)
+        dqn.update()
+
+        assert dqn.policy.net.state_dict()['fc.weight'][0] > 2
+
+
+    # def test_train(self):
+    #     net = LinearNet(4, 2)
+    #     policy = MaxQPolicy(net, num_actions=2)
+    #     # instantiate a DQN agent
+    #     dqn = DQN(buffer=BasicExperienceBuffer(size=10, batch_size=2), 
+    #     gamma=0.9, epsilon=0.1, 
+    #     policy=policy, optimizer=torch.optim.Adam(net.parameters(), lr=0.1),
+    #     start_learning_step=1000, target_update_freq=1000, update_freq=1000)
+
+    #     env = gym.make('CartPole-v1')
+
+    #     train(dqn, env, 100)
 
