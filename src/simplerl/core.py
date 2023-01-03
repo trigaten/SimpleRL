@@ -17,6 +17,21 @@ class Agent(ABC):
     def __call__(x):
         raise Exception("Not Implemented")
 
+    def pre_experiment_stage(self):
+        pass
+    
+    def post_episode_stage(self, episode):
+        pass
+
+    def pre_act_stage(self):
+        pass
+
+    def post_act_stage(self):
+        pass
+
+    def pre_episode_stage(self, episode):
+        pass
+
 def train(agent, env, episodes):
     # "global" state of training
     training_done = False
@@ -31,7 +46,7 @@ def train(agent, env, episodes):
             agent.post_experience(obs, action, reward, next_obs, done)
 
         episodes_complete+= 1
-        agent.post_stage("POST_EPISODE_STAGE", episodes_complete)
+        agent.post_episode_stage(episodes_complete)
         
         if episodes_complete > episodes:
             training_done = True

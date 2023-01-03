@@ -11,6 +11,7 @@ from simplerl.core import Agent, Policy
 from simplerl.buffers import BasicExperienceBuffer
 from simplerl.policies import DiscreteRandomPolicy
 from simplerl.utils import discount_rewards, unzip_experience_buffer
+from torch.utils.tensorboard import SummaryWriter
 
 class DQN(Agent):
     """
@@ -26,7 +27,8 @@ class DQN(Agent):
         buffer:BasicExperienceBuffer, 
         gamma:float, epsilon:float, 
         policy:Policy, optimizer:optim.Optimizer, 
-        start_learning_step:int, update_freq:int, target_update_freq:int):
+        start_learning_step:int, update_freq:int, target_update_freq:int,
+        log_path=None):
 
         self.experience_buffer = buffer
         self.gamma = gamma
@@ -41,6 +43,10 @@ class DQN(Agent):
         self.start_learning_step = start_learning_step
         self.update_freq = update_freq
         self.target_update_freq = target_update_freq
+        self.episode = 0
+
+        if log_path:
+            self.logger = SummaryWriter(log_path)
 
     def __call__(self, obs):
         # TODO: refactor
@@ -69,6 +75,12 @@ class DQN(Agent):
         # clear gradients
         self.optimizer.zero_grad()
         
+        if self.logger:
+            print("LOG")
+            self.logger.add_scalar('loss', loss.detach().item(), self.episode)
+        else:
+            print("NO")
+            
         return loss.item()
     
     def calc_loss(self, sample_experience):
@@ -126,6 +138,9 @@ class DQN(Agent):
                     self.update()
                 if episodes % self.target_update_freq == 0:
                     self.target_policy.net.load_state_dict(self.policy.net.state_dict())
+
+    def post_episode_stage(self, episode):
+        self.episode+=1
 
     def post_experience(self, state, action, reward, next_state, done):
         self.experience_buffer.add(state, action, reward, next_state, done)
