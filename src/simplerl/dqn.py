@@ -45,9 +45,6 @@ class DQN(Agent):
         self.target_update_freq = target_update_freq
         self.episode = 0
 
-        if log_path:
-            self.logger = SummaryWriter(log_path)
-
     def __call__(self, obs):
         # TODO: refactor
         # to device
@@ -75,9 +72,6 @@ class DQN(Agent):
         # clear gradients
         self.optimizer.zero_grad()
         
-        if self.logger:
-            self.logger.add_scalar('loss', loss.detach().item(), self.episode)
-            
         return loss.item()
     
     def calc_loss(self, sample_experience):
