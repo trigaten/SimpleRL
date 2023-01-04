@@ -47,6 +47,8 @@ class DQN(Agent):
 
         if log_path:
             self.logger = SummaryWriter(log_path)
+        else:
+            self.logger = None
 
     def __call__(self, obs):
         # TODO: refactor
