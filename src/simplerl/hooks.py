@@ -26,8 +26,7 @@ class RewardLoggerHook(Hook):
         self.episode_reward+= reward
 
     def post_episode_stage(self, episode):
-        self.episode+=1
-
         self.logger.add_scalar('reward', self.episode_reward, self.episode)
-
+        # print(f"Episode {self.episode} reward: {self.episode_reward}")
         self.episode_reward = 0
+        self.episode+=1

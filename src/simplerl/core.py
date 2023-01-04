@@ -42,7 +42,7 @@ def train(agent, env, episodes, hook=Hook()):
     agent.pre_experiment_stage()
 
     while not training_done:
-        obs = env.reset()
+        obs, info = env.reset()
         done = False
 
         hook.pre_episode_stage(episodes_complete)
@@ -54,13 +54,15 @@ def train(agent, env, episodes, hook=Hook()):
             
             action = agent(obs)
 
-            next_obs, reward, done, info = env.step(action)
+            next_obs, reward, truncated, terminated, info = env.step(action)
+
+            done = truncated or terminated
             
             agent.post_act_stage()
             hook.post_act_stage(reward)
 
             agent.post_experience(obs, action, reward, next_obs, done)
-
+        print(env._elapsed_steps)
         episodes_complete+= 1
 
         hook.post_episode_stage(episodes_complete)

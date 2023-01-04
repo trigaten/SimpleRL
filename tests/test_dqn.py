@@ -1,4 +1,4 @@
-import gym
+import gymnasium as gym
 import torch
 import torch.nn as nn
 import numpy as np
@@ -38,8 +38,8 @@ class TestDQN:
         # instantiate a DQN agent
         dqn = DQN(buffer=BasicExperienceBuffer(size=10, batch_size=2), gamma=0.9, epsilon=0.1, policy=DiscreteRandomPolicy(num_actions=2), start_learning_step=1000, target_update_freq=1000, update_freq=1000, optimizer=None)
         # instantiate a gym environment
-        env = gym.make('CartPole-v1', new_step_api=True)
-        obs = env.reset() 
+        env = gym.make('CartPole-v1')
+        obs, info = env.reset() 
 
         # run an episode
         terminated =  False
@@ -56,7 +56,6 @@ class TestDQN:
 
         assert len(dqn.experience_buffer) > 2
         
-
         class Policy7:
             def __init__(self):
                 self.num_actions = 7
