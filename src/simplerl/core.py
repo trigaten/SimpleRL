@@ -38,11 +38,12 @@ def train(agent, env, episodes):
     # how many episodes have been completed thus far
     episodes_complete = 0
     while not training_done:
-        obs = env.reset()
+        obs, info = env.reset()
         done = False
         while not done:
             action = agent(obs)
-            next_obs, reward, done, info = env.step(action)
+            next_obs, reward, truncated, terminated, info = env.step(action)
+            done = truncated or terminated
             agent.post_experience(obs, action, reward, next_obs, done)
 
         episodes_complete+= 1
