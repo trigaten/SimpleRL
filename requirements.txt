@@ -7,3 +7,4 @@ swig
 box2d
 box2d-kengz
 tensorboard
+pytorch
