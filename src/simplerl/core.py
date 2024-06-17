@@ -70,7 +70,3 @@ def train(agent, env, episodes, hook=Hook()):
 
         if episodes_complete > episodes:
             training_done = True
-
-
-
-Experience = namedtuple("Experience", "s a r s_ done")
