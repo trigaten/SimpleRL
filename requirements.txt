@@ -1,10 +1,8 @@
 sphinx
-pytest --install-option='--U'
+pytest
 numpy
 gymnasium
 pygame
-swig
-box2d
-box2d-kengz
 tensorboard
-pytorch
+torch
+-e .
